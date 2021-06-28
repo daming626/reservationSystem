@@ -11,6 +11,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
@@ -33,11 +34,11 @@ public class DispatcherServlet extends HttpServlet {
          */
     }
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         dispatcher(request, response);
     }
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         dispatcher(request, response);
     }
 
@@ -64,7 +65,13 @@ public class DispatcherServlet extends HttpServlet {
                 /*
                 8种基本类型
                  */
-                if (parameterType[i].isPrimitive()) {
+                if (ClassUtils.isAssignable(parameterType[i], HttpServletRequest.class)) {
+                    parameterValues[i] = request;
+                } else if (ClassUtils.isAssignable(parameterType[i], HttpServletResponse.class)) {
+                    parameterValues[i] = response;
+                } else if (ClassUtils.isAssignable(parameterType[i], HttpSession.class)) {
+                    parameterValues[i] = request.getSession();
+                } else if (parameterType[i].isPrimitive()) {
                     if (parameterType[i].getTypeName().equals("int")) {
                         parameterValues[i] = Integer.parseInt(request.getParameter(paramterList.get(i)));
                     } else if (parameterType[i].getTypeName().equals("float")) {
